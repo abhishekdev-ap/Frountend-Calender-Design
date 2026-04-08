@@ -8,6 +8,7 @@ export const WallCalendar: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [direction, setDirection] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [heroImage, setHeroImage] = useState<string>('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&q=80&w=1200');
   const [themeColor, setThemeColor] = useState<string>('#3b82f6');
 
@@ -21,17 +22,39 @@ export const WallCalendar: React.FC = () => {
     setCurrentDate(subMonths(currentDate, 1));
   };
 
-  const handleDateSelect = (date: Date) => {
-    if (!startDate || (startDate && endDate)) {
-      setStartDate(date);
-      setEndDate(null);
-    } else if (date < startDate) {
-      setStartDate(date);
-      setEndDate(null);
-    } else {
+  const handleDragStart = (date: Date) => {
+    setStartDate(date);
+    setEndDate(null);
+    setIsDragging(true);
+  };
+
+  const handleDragEnter = (date: Date) => {
+    if (isDragging && startDate) {
       setEndDate(date);
     }
   };
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        if (startDate && endDate) {
+          if (startDate > endDate) {
+            setStartDate(endDate);
+            setEndDate(startDate);
+          } else if (startDate.getTime() === endDate.getTime()) {
+            setEndDate(null); // Just a single day click
+          }
+        }
+      }
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, [isDragging, startDate, endDate]);
 
   // Change hero image slightly based on month index (0-11) for demonstration
   useEffect(() => {
@@ -95,10 +118,12 @@ export const WallCalendar: React.FC = () => {
             currentDate={currentDate}
             startDate={startDate}
             endDate={endDate}
-            onDateSelect={handleDateSelect}
+            onDragStart={handleDragStart}
+            onDragEnter={handleDragEnter}
             onNextMonth={handleNextMonth}
             onPrevMonth={handlePrevMonth}
             direction={direction}
+            isDragging={isDragging}
           />
           <NotesSection 
             currentDate={currentDate} 

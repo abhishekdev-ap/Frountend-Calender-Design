@@ -29,10 +29,12 @@ interface CalendarGridProps {
   currentDate: Date;
   startDate: Date | null;
   endDate: Date | null;
-  onDateSelect: (date: Date) => void;
+  onDragStart?: (date: Date) => void;
+  onDragEnter?: (date: Date) => void;
   onNextMonth: () => void;
   onPrevMonth: () => void;
   direction: number; // 1 for next, -1 for prev
+  isDragging?: boolean;
 }
 
 // Framer motion variants for a cinematic hinged page flip animation
@@ -112,10 +114,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   currentDate,
   startDate,
   endDate,
-  onDateSelect,
+  onDragStart,
+  onDragEnter,
   onNextMonth,
   onPrevMonth,
-  direction
+  direction,
+  isDragging
 }) => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -128,6 +132,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   });
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Harmonize direction so logic works backwards seamlessly
+  const actualStart = startDate && endDate && startDate > endDate ? endDate : startDate;
+  const actualEnd = startDate && endDate && startDate > endDate ? startDate : endDate;
 
   // Helper function to determine the CSS classes for a given day
   const getDayClasses = (day: Date) => {
@@ -142,20 +150,20 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
       classes.push('today');
     }
 
-    if (startDate && isSameDay(day, startDate)) {
+    if (actualStart && isSameDay(day, actualStart)) {
       classes.push('selected-start');
     }
     
-    if (endDate && isSameDay(day, endDate)) {
+    if (actualEnd && isSameDay(day, actualEnd)) {
       classes.push('selected-end');
     }
     
-    if (startDate && endDate) {
+    if (actualStart && actualEnd) {
       if (
-        (isAfter(day, startDate) || isSameDay(day, startDate)) && 
-        (isBefore(day, endDate) || isSameDay(day, endDate)) &&
-        !isSameDay(day, startDate) && 
-        !isSameDay(day, endDate)
+        (isAfter(day, actualStart) || isSameDay(day, actualStart)) && 
+        (isBefore(day, actualEnd) || isSameDay(day, actualEnd)) &&
+        !isSameDay(day, actualStart) && 
+        !isSameDay(day, actualEnd)
       ) {
         classes.push('in-range');
       }
@@ -164,8 +172,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     return classes.join(' ');
   };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !onDragEnter) return;
+    const touch = e.touches[0];
+    // Find the DOM element sitting specifically underneath the moving finger
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (element) {
+      const dateStr = element.getAttribute('data-date');
+      if (dateStr) {
+        onDragEnter(new Date(dateStr));
+      }
+    }
+  };
+
   return (
-    <div className="calendar-grid-wrapper">
+    <div className="calendar-grid-wrapper" onTouchMove={handleTouchMove}>
       <div className="calendar-header">
         <h3 className="month-title">{format(currentDate, 'MMMM yyyy')}</h3>
         <div className="month-nav">
@@ -209,7 +230,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 <div 
                   key={day.toString()} 
                   className={getDayClasses(day)}
-                  onClick={() => isCurrentMonth && onDateSelect(day)}
+                  data-date={day.toISOString()}
+                  onMouseDown={() => isCurrentMonth && onDragStart && onDragStart(day)}
+                  onMouseEnter={() => isCurrentMonth && onDragEnter && onDragEnter(day)}
+                  onTouchStart={() => isCurrentMonth && onDragStart && onDragStart(day)}
                   title={holidayTheme ? holidayTheme : ''}
                 >
                   <span className="day-number">{isCurrentMonth ? format(day, 'd') : ''}</span>

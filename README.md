@@ -5,7 +5,7 @@ A highly polished, responsive React component built for the **Frontend Engineeri
 ## ✨ Core Requirements Mastered
 
 1. **Physical Wall Calendar Aesthetic**: Styled natively with a realistic metallic hanging-wire hook at the top, a top-heavy massive visual Hero segment spanning 100% width, and seamlessly split dual bottom panels. 
-2. **Day Range Selector**: Click any two dates to select an interactive range! Built with robust `date-fns` math, it guarantees clear visual separation for the `Start Date`, `End Date`, and connected `Days In-Between`. 
+2. **Tactile Drag-to-Select Range Selector**: Fluidly drag your cursor or finger across the grid to dynamically build a date range! Engineered with a specialized state-machine supporting overlapping desktop mouse loops and mobile touch gestures (`onMouseDown`, `onMouseEnter`, `onTouchMove`), the highlighted range precisely recalculates itself in real-time whether dragged forward or backward. Live hovered dates dynamically scale up (`1.15x`) and glow with a soft shadow lift as your cursor glides over them natively!
 3. **Integrated Notes System**: A fully functional Memo pad securely wired into client-side `localStorage`. It is **Context-Aware**: If you have no dates selected, notes are saved specifically for the *current month*. If you have a date range highlighted, notes shift databases to save strictly to *that precise date range*!
 4. **Flawlessly Responsive Layout**: 
    - **Desktop**: Expands into a massive 1200px visual anchor with the Calendar Grid taking 66% and the Notes component clearly segmented to the remaining 33%.
