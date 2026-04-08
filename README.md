@@ -11,7 +11,7 @@ A highly polished, responsive React component built for the **Frontend Engineeri
    - **Desktop**: Expands into a massive 1200px visual anchor with the Calendar Grid taking 66% and the Notes component clearly segmented to the remaining 33%.
    - **Mobile**: The layout natively and gracefully collapses vertically so all touch targets remain expansive and accessible without forcing side-scrolling. 
 
-## 🚀 Creative Liberty (Stand-Out Premium Features!)
+## 🚀 Creative Liberty
 
 1. **Tactile 3D Page Flipping (`framer-motion`)**:
    Instead of basic cross-fades, advancing through months triggers a realistic physical book-flip. Flipping right-to-left uses physical spring-based physics (`stiffness` and `damping`) alongside structural `rotateY` transforms, parallax scaling (`0.85x`), and a simulated shadow cast (`filter: brightness(0.3) blur()`) to bend the document identically to real paper.
