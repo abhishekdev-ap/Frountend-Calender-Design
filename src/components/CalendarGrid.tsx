@@ -35,49 +35,76 @@ interface CalendarGridProps {
   direction: number; // 1 for next, -1 for prev
 }
 
-// Framer motion variants for a premium physical page flip animation (Horizontal 3D)
+// Framer motion variants for a cinematic hinged page flip animation
 const variants = {
   enter: (direction: number) => {
-    return {
-      zIndex: 0,
-      opacity: 0,
-      rotateY: direction > 0 ? 60 : -60, // Swing horizontally
-      x: direction > 0 ? 150 : -150, // Physical page sliding motion
-      scale: 0.85, // Parallax depth effect
-      filter: 'brightness(0.3) blur(4px)' // Cast deeply into shadow to simulate bending away from light
-    };
+    if (direction > 0) {
+      // NEXT MONTH: New page starts static underneath, just waking up from shadow
+      return {
+        zIndex: 0,
+        opacity: 0,
+        scale: 0.95,
+        rotateY: 0,
+        transformOrigin: "left center", // Hinge on the left
+        filter: 'brightness(0.7)'
+      };
+    } else {
+      // PREV MONTH: New page turns ONTO the stack from the left (like flipping a page back)
+      return {
+        zIndex: 10,
+        opacity: 0,
+        rotateY: -100, // Bent vertically outward from left hinge
+        scale: 1,
+        transformOrigin: "left center",
+        filter: 'brightness(0.4) drop-shadow(10px 0 10px rgba(0,0,0,0.3))'
+      };
+    }
   },
   center: {
     zIndex: 1,
     opacity: 1,
     rotateY: 0,
-    x: 0,
     scale: 1,
-    filter: 'brightness(1) blur(0px)',
+    filter: 'brightness(1) drop-shadow(0px 0 0px rgba(0,0,0,0))',
     transition: {
-      rotateY: { type: "spring" as const, stiffness: 120, damping: 14 }, // Satisfying physical 'snap' flat into place
-      x: { type: "spring" as const, stiffness: 250, damping: 25 },
+      rotateY: { type: "spring" as const, stiffness: 100, damping: 16 },
+      scale: { type: "spring" as const, stiffness: 100, damping: 20 },
       opacity: { duration: 0.3 },
-      scale: { type: "spring" as const, stiffness: 200, damping: 20 },
-      filter: { duration: 0.3 }
+      filter: { duration: 0.4 }
     }
   },
   exit: (direction: number) => {
-    return {
-      zIndex: 0,
-      opacity: 0,
-      rotateY: direction < 0 ? 60 : -60,
-      x: direction < 0 ? 150 : -150,
-      scale: 0.85,
-      filter: 'brightness(0.3) blur(2px)',
-      transition: {
-        rotateY: { type: "spring" as const, stiffness: 120, damping: 14 },
-        x: { type: "spring" as const, stiffness: 250, damping: 25 },
-        opacity: { duration: 0.2 },
-        scale: { type: "spring" as const, stiffness: 200, damping: 20 },
-        filter: { duration: 0.2 }
-      }
-    };
+    if (direction > 0) {
+      // NEXT MONTH: Old top page lifts from right edge and flips over to the left hinge
+      return {
+        zIndex: 10,
+        opacity: 0,
+        rotateY: -100, 
+        scale: 1,
+        transformOrigin: "left center",
+        filter: 'brightness(0.4) drop-shadow(10px 0 10px rgba(0,0,0,0.3))',
+        transition: {
+          rotateY: { type: "spring" as const, stiffness: 100, damping: 16 },
+          opacity: { duration: 0.3, delay: 0.1 }, // Hold opacity briefly so it looks like paper before vanishing
+          filter: { duration: 0.4 }
+        }
+      };
+    } else {
+      // PREV MONTH: Old page sinks down underneath 
+      return {
+        zIndex: 0,
+        opacity: 0,
+        rotateY: 0,
+        scale: 0.95,
+        transformOrigin: "left center",
+        filter: 'brightness(0.7)',
+        transition: {
+          scale: { type: "spring" as const, stiffness: 100, damping: 20 },
+          opacity: { duration: 0.4 },
+          filter: { duration: 0.4 }
+        }
+      };
+    }
   }
 };
 
